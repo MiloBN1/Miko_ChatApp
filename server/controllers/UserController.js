@@ -1,4 +1,13 @@
 class UserController {
+     /**
+   * @swagger
+   * /users:
+   *   get:
+   *     description: Получить список пользователей
+   *     responses:
+   *       200:
+   *         description: Список пользователей
+   */
     list(req, res) {
       res.send('Список пользователей');
     }
@@ -8,4 +17,4 @@ class UserController {
     }
   }
   
-  module.exports = UserController;
+  module.exports = new UserController();

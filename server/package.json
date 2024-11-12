@@ -1,15 +1,23 @@
 {
   "name": "server",
+  "type": "commonjs",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon app.js"
+    "start": "nodemon app.js",
+    "generate:doc": "node swagger-docs.creator.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "express": "^4.21.1"
+    "express": "^4.21.1",
+    "express-swagger-generator": "^1.1.17",
+    "json2yaml": "^1.1.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "swagger2openapi": "^7.0.8",
+    "yamljs": "^0.3.0"
   }
 }

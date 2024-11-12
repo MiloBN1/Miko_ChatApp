@@ -1,0 +1,30 @@
+---
+  info: 
+    description: "Данный сервис определяет основные пользовательские функции"
+    title: "Основной игровой сервис"
+    version: "1.0.0"
+    contact: 
+      email: "swdaniel@yandex.ru"
+  host: "localhost:3000"
+  basePath: "/"
+  produces: 
+    - "application/json"
+    - "application/xml"
+  schemes: 
+    - "http"
+    - "https"
+  securityDefinitions: 
+    JWT: 
+      type: "apiKey"
+      in: "header"
+      name: "Authorization"
+      description: ""
+  externalDocs: 
+    description: "Ссылка на внешнюю документацию"
+    url: "http://localhost:3000/api-docs"
+  swagger: "2.0"
+  paths: {}
+  definitions: {}
+  responses: {}
+  parameters: {}
+  tags: []
