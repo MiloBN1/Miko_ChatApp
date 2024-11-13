@@ -1,25 +1,15 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/sequelize_instance');
-const { v4: uuidv4 } = require('uuid');  // Генерация UUID
+const Role = require('./Role'); // Импортируем модель роли
 
 const User = sequelize.define('User', {
-  id: {
-    type: DataTypes.INTEGER,   // Оставляем id как INTEGER
-    autoIncrement: true,
-    primaryKey: true,
-    allowNull: false,
-  },
   user_id: {
-    type: DataTypes.UUID,      // Добавляем поле user_id типа UUID
-    defaultValue: uuidv4(),    // Генерация UUID по умолчанию
-    unique: true,              // user_id уникален
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
     allowNull: false,
+    primaryKey: true,
   },
   username: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  email: {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true,
@@ -28,9 +18,31 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
+  // Добавляем внешний ключ для роли
+  role: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    references: {
+      model: 'roles', // Имя таблицы ролей
+      key: 'value',
+    },
+    onDelete: 'CASCADE',
+  },
 }, {
   tableName: 'users',
-  timestamps: true,  // Sequelize будет автоматически добавлять createdAt и updatedAt
+  timestamps: true,
+});
+
+// Устанавливаем ассоциацию "один ко многим" между пользователями и ролями
+User.belongsTo(Role, {
+  foreignKey: 'role',  // Ensure the foreign key is 'role'
+  targetKey: 'role_id', // Assuming the primary key of Role is 'role_id'
+  as: 'userRole'  // Add an alias to avoid naming collision
 });
 
 module.exports = User;

@@ -1,12 +1,14 @@
+const authService = require('../services/AuthService')
 class AuthController {
     
-    list(req, res) {
-      res.send('Список пользователей');
-    }
-  
-    getUser(req, res) {
-      res.send(`Пользователь с ID: ${req.params.id}`);
-    }
+   async register(req, res){
+    try{                      
+      const message = await authService.register(req)
+      res.json(message)
+    }catch(e){
+      res.status(500).json(e)
+    } 
+   }
   }
   
-  module.exports = new UserController();
+  module.exports = new AuthController();
