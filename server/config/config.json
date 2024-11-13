@@ -1,0 +1,24 @@
+{
+    "development": {
+      "username": "postgres",
+      "password": "miko",
+      "database": "chatapp",
+      "host": "127.0.0.1",
+      "dialect": "postgres"
+    },
+    "test": {
+      "username": "your_username",
+      "password": "your_password",
+      "database": "test_database",
+      "host": "127.0.0.1",
+      "dialect": "postgres"
+    },
+    "production": {
+      "username": "your_username",
+      "password": "your_password",
+      "database": "prod_database",
+      "host": "127.0.0.1",
+      "dialect": "postgres"
+    }
+  }
+  

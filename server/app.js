@@ -4,8 +4,8 @@ const swaggerUi = require('swagger-ui-express');
 const router = require('./routers/router')
 const app = express();
 const port = 3000;
+const sequelize = require('./config/sequelize_instance')
 
-// Конфигурация Swagger
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
@@ -22,7 +22,7 @@ const swaggerOptions = {
   },
   explorer: true,
   path:'./docs/docs.yaml',
-  apis: ['./docs/docs.yaml'] // Укажите путь к файлам с определениями маршрутов
+  apis: ['./docs/docs.yaml'] 
 };
 
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
@@ -30,6 +30,12 @@ const swaggerDocs = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use(router)
 
-app.listen(port, () => {
-  console.log(`Сервер запущен на порту ${port}`);
+app.listen(port, async() => {
+  try {
+    await sequelize.authenticate();
+    console.log('Connection to the PostgreSQL database has been established successfully.');
+    console.log(`Сервер запущен на порту ${port}`);
+  } catch (error) {
+    console.error('Unable to connect to the database:', error);
+  }
 });
