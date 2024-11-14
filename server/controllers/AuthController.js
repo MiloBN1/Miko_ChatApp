@@ -9,6 +9,11 @@ class AuthController {
       res.status(500).json(e)
     } 
    }
+
+   async login(req, res){
+      const message = await authService.login(req)
+      res.json(message)
+   }
   }
   
   module.exports = new AuthController();

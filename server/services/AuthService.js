@@ -28,6 +28,26 @@ class AuthService {
         }
     }
 
+    async login(req){
+        this.validateRequest(req);
+
+        const { username, password} = req.body;
+
+        const user = await User.findOne({ where: { username } })
+
+        if(!user) return {message: 'This user not in system'}
+
+        const validatedPassword = bcrypt.compareSync(password, user.password)
+
+        if(!validatedPassword) return {message: 'Wrong password'}
+        
+        const token = this.generateToken(user);
+
+        return {
+            access_token: token
+        };
+    }
+
     validateRequest(req) {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {

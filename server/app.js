@@ -31,7 +31,6 @@ app.use(express.json());
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use(router)
 
-
 app.listen(port, async() => {
   try {
     await sequelize.authenticate();
