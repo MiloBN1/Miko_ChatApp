@@ -1,6 +1,6 @@
 <script>
 import axios from "axios";
-
+import cookieService from "../services/use-cookie.ts";
 export default {
   data() {
     return {
@@ -19,10 +19,10 @@ export default {
 
       try {
         const response = await axios.post("http://localhost:3000/api/auth/signin", this.form);
-        console.log(response.data);
-        if (response.data.token) {
-          localStorage.setItem("access_token", response.data.token);
-          await this.$router.push("/dashboard");
+        console.log(response.data.access_token);
+        if (response.data.access_token) {
+          cookieService.saveCookie("access_token", response.data.access_token, 1);
+          await this.$router.push("/chats");
         }
       } catch (error) {
         this.error = error.response ? error.response.data.message : "An error occurred.";
