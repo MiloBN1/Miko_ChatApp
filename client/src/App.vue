@@ -1,53 +1,53 @@
 <script>
-import { io } from "socket.io-client";
-import LoginView from "./views/LoginView.vue";
-export default {
-  data() {
-    return {
-      socket: null,
-      userId: "",
-      receiverId: "",
-      message: "",
-      messages: [],
-    };
-  },
-  methods: {
-    // Подключение к серверу Socket.IO
-    connectSocket() {
-      this.socket = io("http://localhost:3000");
-
-      // Обработка входящих сообщений
-      this.socket.on("private_message", ({ senderId, message }) => {
-        this.addMessage(`${senderId}: ${message}`);
-      });
-    },
-    // Присоединение пользователя
-    joinChat() {
-      if (this.userId) {
-        this.socket.emit("join", this.userId);
-      }
-    },
-    // Отправка сообщения
-    sendMessage() {
-      if (this.userId && this.receiverId && this.message) {
-        this.socket.emit("private_message", {
-          senderId: this.userId,
-          receiverId: this.receiverId,
-          message: this.message,
-        });
-        this.addMessage(`Вы: ${this.message}`);
-        this.message = "";
-      }
-    },
-    // Добавление сообщения в список
-    addMessage(msg) {
-      this.messages.push(msg);
-    },
-  },
-  mounted() {
-    this.connectSocket();
-  },
-};
+// import { io } from "socket.io-client";
+// import LoginView from "./views/LoginView.vue";
+// export default {
+//   data() {
+//     return {
+//       socket: null,
+//       userId: "",
+//       receiverId: "",
+//       message: "",
+//       messages: [],
+//     };
+//   },
+//   methods: {
+//     // Подключение к серверу Socket.IO
+//     connectSocket() {
+//       this.socket = io("http://localhost:3000");
+//
+//       // Обработка входящих сообщений
+//       this.socket.on("private_message", ({ senderId, message }) => {
+//         this.addMessage(`${senderId}: ${message}`);
+//       });
+//     },
+//     // Присоединение пользователя
+//     joinChat() {
+//       if (this.userId) {
+//         this.socket.emit("join", this.userId);
+//       }
+//     },
+//     // Отправка сообщения
+//     sendMessage() {
+//       if (this.userId && this.receiverId && this.message) {
+//         this.socket.emit("private_message", {
+//           senderId: this.userId,
+//           receiverId: this.receiverId,
+//           message: this.message,
+//         });
+//         this.addMessage(`Вы: ${this.message}`);
+//         this.message = "";
+//       }
+//     },
+//     // Добавление сообщения в список
+//     addMessage(msg) {
+//       this.messages.push(msg);
+//     },
+//   },
+//   mounted() {
+//     this.connectSocket();
+//   },
+// };
 </script>
 
 <template>

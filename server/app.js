@@ -45,7 +45,7 @@ const swaggerDocs = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Использование маршрутов
-app.use(router);
+app.use('/api', router);
 
 // Подключение Socket.IO
 io.on('connection', (socket) => {
