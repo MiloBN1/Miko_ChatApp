@@ -1,6 +1,6 @@
 <script>
 import { io } from "socket.io-client";
-
+import LoginView from "./views/LoginView.vue";
 export default {
   data() {
     return {
@@ -51,15 +51,18 @@ export default {
 </script>
 
 <template>
-  <div>
-    <h1>Чат</h1>
-    <input v-model="userId" placeholder="Ваш ID" @change="joinChat" />
-    <input v-model="receiverId" placeholder="ID получателя" />
-    <input v-model="message" placeholder="Сообщение" />
-    <button @click="sendMessage">Отправить</button>
-    <ul>
-      <li v-for="(msg, index) in messages" :key="index">{{ msg }}</li>
-    </ul>
+<!--  <div>-->
+<!--    <h1>Чат</h1>-->
+<!--    <input v-model="userId" placeholder="Ваш ID" @change="joinChat" />-->
+<!--    <input v-model="receiverId" placeholder="ID получателя" />-->
+<!--    <input v-model="message" placeholder="Сообщение" />-->
+<!--    <button @click="sendMessage">Отправить</button>-->
+<!--    <ul>-->
+<!--      <li v-for="(msg, index) in messages" :key="index">{{ msg }}</li>-->
+<!--    </ul>-->
+<!--  </div>-->
+  <div class="main-content">
+    <router-view />
   </div>
 </template>
 
@@ -77,5 +80,9 @@ ul {
 }
 li {
   margin: 5px 0;
+}
+
+.main-content{
+  width: 100%;
 }
 </style>
