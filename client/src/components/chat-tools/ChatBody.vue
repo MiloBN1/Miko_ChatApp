@@ -2,13 +2,14 @@
 import { ref, onMounted } from 'vue';
 import { io, Socket } from 'socket.io-client';
 import useCookie from '../../services/use-cookie';
+import axios from "axios";
 
 const message = ref<string>('');
 const textarea = ref<HTMLTextAreaElement | null>(null);
 const messages = ref<string[]>([]);
 const socket = ref<Socket | null>(null);
-const userId = useCookie.loadCookie('access_token') || '';
-const receiverId = ref<string>('');
+const userId = ref<string | null>(null);
+// const receiverId = ref<string>('');
 
 // Resize textarea dynamically
 function resizeTextarea() {
@@ -30,16 +31,16 @@ function connectSocket() {
 
 // Join chat (optional for user initialization)
 function joinChat() {
-  if (userId) {
-    socket.value?.emit('join', userId);
+  if (userId.value) {
+    socket.value?.emit('join', userId.value);
   }
 }
 
 // Send message to receiver
 function sendMessage() {
-  if (userId && message.value) {
+  if (userId.value && message.value) {
     socket.value?.emit('private_message', {
-      senderId: userId,
+      senderId: userId.value,
       receiverId: 322,
       message: message.value,
     });
@@ -53,10 +54,19 @@ function addMessage(msg: string) {
   messages.value.push(msg);
 }
 
-// Automatically connect socket when mounted
-onMounted(() => {
+function getMe(){
+  axios.get('http://localhost:3000/api/user/me', {headers:{'Authorization': `Bearer ${useCookie.loadCookie('access_token')}`}}).then((response) => {
+    console.log(response.data.user_id);
+    userId.value = response.data.user_id;
+    console.log(userId.value)
+  })
   connectSocket();
   joinChat();
+}
+
+// Automatically connect socket when mounted
+onMounted(() => {
+  getMe();
 });
 </script>
 
@@ -79,7 +89,7 @@ onMounted(() => {
     </div>
     <!-- История сообщений -->
     <div class="message-history flex-grow overflow-y-auto mt-3">
-      <div class="flex mt-3" v-for="(msg, index) in messages" :key="index" :class="a%2==0?'justify-end':'justify-start'">
+      <div class="flex mt-3" v-for="(msg, index) in messages" :key="index" :class="index%2==0?'justify-end':'justify-start'">
         <div class="message">
           {{msg}}
         </div>
