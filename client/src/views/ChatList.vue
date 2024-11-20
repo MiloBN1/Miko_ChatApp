@@ -1,6 +1,5 @@
 <script setup lang="ts">
-  import {ref} from "vue";
-
+  import ChatBody from "../components/chat-tools/ChatBody.vue";
   let rooms = [
     {
       id:'asdasdadasd',
@@ -25,21 +24,13 @@
     }
   ]
 
-  let message = ref('')
-  const textarea = ref<HTMLTextAreaElement | null>(null);
-
   function formatTimestamp(timestamp:number) {
     const date = new Date(timestamp * 1000); // Convert the timestamp to milliseconds
     const options = { day: '2-digit', month: 'short', year: 'numeric' }; // Specify the format
     return date.toLocaleDateString('en-GB', options); // Use 'en-GB' for English with MonthName
   }
 
-  function resizeTextarea() {
-    if (textarea.value) {
-      textarea.value.style.height = 'auto'; // Reset height before calculating
-      textarea.value.style.height = `${Math.min(textarea.value.scrollHeight, 300)}px`; // Set height with a max limit of 400px
-    }
-  }
+
 </script>
 
 <template>
@@ -75,66 +66,10 @@
     </div>
 
     <!-- Основная панель с историей сообщений и textarea -->
-    <div class="px-5 relative w-2/3 flex flex-col h-[100vh]">
-      <div class="flex bg-white p-5 absolute left-0 right-0">
-        <img src="/src/assets/img/icons/Google%20-%20Original.svg" alt="asdasd" class="mr-2"/>
-        <span class="font-bold">Room1</span>
-      </div>
-      <!-- История сообщений -->
-      <div class="message-history flex-grow overflow-y-auto mt-3">
-        <div class="flex mt-3" v-for="a in [1,2,3,4,5,6,7,8,9,10]" :key="a" :class="a%2==0?'justify-end':'justify-start'">
-          <div class="message">
-            <!-- Очень длинное сообщение для теста -->
-            asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasd
-          </div>
-        </div>
-      </div>
-
-      <!-- Поле ввода сообщения -->
-      <div class="mt-5">
-        <textarea v-model="message"
-                  @input="resizeTextarea"
-                  ref="textarea"
-                  placeholder="Message" class="rounded px-3 py-2 w-full"/>
-      </div>
-    </div>
+    <ChatBody/>
   </div>
 </template>
 
 <style scoped>
-textarea {
-  resize: none; /* Отключает изменение размера textarea */
-  overflow-y: auto; /* Включает вертикальную прокрутку, если содержимое выходит за пределы */
-  scrollbar-width: thin; /* Для Firefox, делает scrollbar тонким */
-  scrollbar-color: #888 #e0e0e0; /* Для Firefox, устанавливает цвет полосы прокрутки */
-}
 
-textarea::-webkit-scrollbar {
-  width: 8px; /* Ширина полосы прокрутки для браузеров на базе WebKit */
-}
-
-textarea::-webkit-scrollbar-thumb {
-  background-color: #888; /* Цвет "ползунка" прокрутки */
-  border-radius: 10px; /* Скругление углов */
-}
-
-textarea::-webkit-scrollbar-track {
-  background-color: #e0e0e0; /* Цвет фона полосы прокрутки */
-}
-
-.message{
-  max-width: 60%;
-  word-break: break-all;
-  background-color: #fff;
-  padding: 10px;
-  border-radius: 10px;
-}
-.message-history{
-  height: 85vh;
-  overflow-y: scroll
-}
-
-.message-history::-webkit-scrollbar{
-  display: none;
-}
 </style>
