@@ -1,7 +1,11 @@
+const Room = require('../entities/Room');
+const Message = require('../entities/Messages');
+const User = require('../entities/User');
+const { Op } = require('sequelize');
+
 class ChatService {
     constructor() {
         this.activeUsers = new Map(); // userId -> socket
-        this.rooms = new Map(); // roomId -> { participants: Set<userId>, messages: [] }
     }
 
     // Подключение пользователя
@@ -21,38 +25,73 @@ class ChatService {
         }
     }
 
-    // Создание комнаты
-    createRoom(userId1, userId2) {
-        const roomId = `${userId1}_${userId2}`; // Уникальный идентификатор комнаты
-        if (!this.rooms.has(roomId)) {
-            this.rooms.set(roomId, {
-                participants: new Set([userId1, userId2]),
-                messages: [],
-            });
-            console.log(`Комната ${roomId} создана для пользователей ${userId1} и ${userId2}`);
+    // Поиск пользователя по username
+    async getUserIdByUsername(username) {
+        const user = await User.findOne({ where: { username } });
+        if (!user) {
+            throw new Error(`Пользователь с именем ${username} не найден`);
         }
-        return roomId;
+        return user.user_id;
+    }
+
+    // Создание комнаты для двух пользователей
+    async createRoom(userId1, userId2) {
+        const room = await Room.findOne({
+            where: {
+                user_ids: {
+                    [Op.contains]: [userId1, userId2], // Ищем комнату, которая содержит этих пользователей
+                }
+            }
+        });
+
+        // Если комнаты нет, создаем новую
+        if (!room) {
+            const newRoom = await Room.create({
+                user_ids: [userId1, userId2],
+            });
+            console.log(`Комната создана для пользователей ${userId1} и ${userId2}`);
+            return newRoom.room_id;
+        }
+        return room.room_id; // Если комната существует, возвращаем ее id
     }
 
     // Отправка сообщения
-    sendMessage({ senderId, receiverId, message }) {
-        // Создаем комнату, если ее еще нет
-        const roomId = this.createRoom(senderId, receiverId);
+    async sendMessage({ senderUsername, receiverUsername, message, type = 'text' }) {
+        try {
+            // Получаем user_id для отправителя и получателя
+            const senderId = await this.getUserIdByUsername(senderUsername);
+            const receiverId = await this.getUserIdByUsername(receiverUsername);
 
-        // Сохраняем сообщение в комнату
-        const room = this.rooms.get(roomId);
-        if (room) {
-            room.messages.push({ senderId, message, timestamp: new Date() });
-        }
+            // Создаем комнату или находим существующую
+            const roomId = await this.createRoom(senderId, receiverId);
 
-        // Проверяем, в сети ли получатель
-        const receiverSocket = this.activeUsers.get(receiverId);
-        if (receiverSocket) {
-            receiverSocket.emit('private_message', { senderId, message });
-            console.log(`Сообщение от ${senderId} отправлено пользователю ${receiverId}`);
-        } else {
-            console.log(`Пользователь ${receiverId} не в сети`);
+            // Сохраняем сообщение в базу данных
+            const newMessage = await Message.create({
+                room_id: roomId,
+                sender_id: senderId,
+                text: message,
+                type: type,
+            });
+
+            // Проверяем, в сети ли получатель
+            const receiverSocket = this.activeUsers.get(receiverId);
+            if (receiverSocket) {
+                receiverSocket.emit('private_message', { senderUsername, message });
+                console.log(`Сообщение от ${senderUsername} отправлено пользователю ${receiverUsername}`);
+            } else {
+                console.log(`Пользователь ${receiverUsername} не в сети`);
+            }
+        } catch (e) {
+            console.error('Ошибка при отправке сообщения:', e.message);
         }
+    }
+
+    // Получить все сообщения для комнаты
+    async getMessagesForRoom(roomId) {
+        return  await Message.findAll({
+            where: { room_id: roomId },
+            order: [['createdAt', 'ASC']], // Сортировка по времени создания
+        });
     }
 }
 

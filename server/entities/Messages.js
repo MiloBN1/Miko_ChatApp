@@ -1,15 +1,15 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/sequelize_instance');
 
-const Messages = sequelize.define('Room', {
+const Messages = sequelize.define('Message', {
   room_id: {
-    type: DataTypes.UUID,  // Используем UUID для user_id
+    type: DataTypes.UUID,  // Используем UUID для room_id
     allowNull: false,
     references: {
-      model: 'rooms',  // Ссылка на таблицу users
-      key: 'room_id',  // Ссылаемся на поле user_id
+      model: 'rooms',  // Ссылка на таблицу rooms
+      key: 'room_id',  // Ссылаемся на поле room_id
     },
-    onDelete: 'CASCADE',  // При удалении пользователя, удаляется и запись в rooms
+    onDelete: 'CASCADE',  // При удалении комнаты, удаляется и сообщение
   },
   sender_id: {
     type: DataTypes.UUID,  // Используем UUID для user_id
@@ -18,7 +18,7 @@ const Messages = sequelize.define('Room', {
       model: 'users',  // Ссылка на таблицу users
       key: 'user_id',  // Ссылаемся на поле user_id
     },
-    onDelete: 'CASCADE',  // При удалении пользователя, удаляется и запись в rooms
+    onDelete: 'CASCADE',  // При удалении пользователя, удаляется и сообщение
   },
   text: {
     type: DataTypes.STRING,
@@ -29,7 +29,7 @@ const Messages = sequelize.define('Room', {
     allowNull: false,
   },
 }, {
-  tableName: 'rooms',
+  tableName: 'messages', // Изменил имя таблицы на messages
   timestamps: true,
 });
 
