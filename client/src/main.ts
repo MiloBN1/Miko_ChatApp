@@ -3,4 +3,6 @@ import './style.css'
 import App from './App.vue'
 import router from './router/index.js';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-createApp(App).use(router).mount('#app')
+import { createPinia } from 'pinia';
+
+createApp(App).use(router).use(createPinia()).mount('#app')

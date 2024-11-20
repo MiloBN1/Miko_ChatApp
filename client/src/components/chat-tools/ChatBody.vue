@@ -1,14 +1,18 @@
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
+import {ref, onMounted, watch} from 'vue';
 import { io, Socket } from 'socket.io-client';
 import useCookie from '../../services/use-cookie';
 import axios from "axios";
+import { useRoomStore } from '../../stores/room.store.ts'; // Подключаем Pinia store
 
 const message = ref<string>('');
 const textarea = ref<HTMLTextAreaElement | null>(null);
 const messages = ref<string[]>([]);
 const socket = ref<Socket | null>(null);
 const userId = ref<string | null>(null);
+
+
+const roomStore = useRoomStore();
 // const receiverId = ref<string>('');
 
 // Resize textarea dynamically
@@ -63,6 +67,13 @@ function getMe(){
   connectSocket();
   joinChat();
 }
+
+watch(() => roomStore.currentRoom, (newRoom) => {
+  if (newRoom) {
+    // Можно загрузить историю сообщений для новой комнаты
+    console.log(`Switched to room: ${newRoom.name}`);
+  }
+});
 
 // Automatically connect socket when mounted
 onMounted(() => {

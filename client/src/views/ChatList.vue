@@ -1,7 +1,9 @@
 <script setup lang="ts">
   import ChatBody from "../components/chat-tools/ChatBody.vue";
   import axios from "axios";
-  import {onMounted, ref} from "vue";
+  import { ref} from "vue";
+  import {useRoomStore} from "../stores/room.store.ts";
+  const roomStore = useRoomStore();
   let rooms = [
     {
       id:'asdasdadasd',
@@ -40,8 +42,23 @@
     })
   }
 
+  function selectRoom(room: Room) {
+    roomStore.setCurrentRoom({
+      roomId: room.roomId,
+      name: room.name,
+      lastMessage: room.lastMessage,
+      timestamp: room.timestamp,
+      img: room.img,
+    });
+  }
   // onMounted(() => {
   // });
+  const commonRoom = {
+    roomId: '',
+    lastMessage: '',
+    timestamp: 0,
+    img: ''
+  }
 
   interface User {
     user_id: string;         // UUID пользователя
@@ -51,6 +68,14 @@
     role: 'user' | 'admin';  // Роль пользователя
     createdAt: string;       // Дата создания (ISO строка)
     updatedAt: string;       // Дата последнего обновления (ISO строка)
+  }
+
+  interface Room {
+    roomId: string;
+    name: string;
+    lastMessage: string;
+    timestamp: number;
+    img: string;
   }
 </script>
 
@@ -89,7 +114,7 @@
         </div>
       </div>
       <div v-if="users.length > 0">
-        <div class="flex gap-2 py-4 border-b-2 cursor-pointer" v-for="user in users" :key="user.username">
+        <div class="flex gap-2 py-4 border-b-2 cursor-pointer" v-for="user in users" :key="user.username" @click="selectRoom({...commonRoom, name:user.username})">
           <div class="flex items-center">
             <img src="/src/assets/img/icons/Google%20-%20Original.svg" alt="asdasd"/>
           </div>

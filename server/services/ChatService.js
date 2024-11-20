@@ -73,14 +73,10 @@ class ChatService {
                 type: type,
             });
 
-            // Проверяем, в сети ли получатель
             const receiverSocket = this.activeUsers.get(receiverId);
-            if (receiverSocket) {
-                receiverSocket.emit('private_message', { senderUsername, message });
-                console.log(`Сообщение от ${senderUsername} отправлено пользователю ${receiverUsername}`);
-            } else {
-                console.log(`Пользователь ${receiverUsername} не в сети`);
-            }
+            receiverSocket.emit('private_message', { senderUsername, message });
+
+            return newMessage;
         } catch (e) {
             console.error('Ошибка при отправке сообщения:', e.message);
         }
