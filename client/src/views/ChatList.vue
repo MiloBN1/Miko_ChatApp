@@ -1,5 +1,7 @@
 <script setup lang="ts">
   import ChatBody from "../components/chat-tools/ChatBody.vue";
+  import axios from "axios";
+  import {onMounted, ref} from "vue";
   let rooms = [
     {
       id:'asdasdadasd',
@@ -24,13 +26,32 @@
     }
   ]
 
+  let users = ref<User[] | []>([])
+
   function formatTimestamp(timestamp:number) {
     const date = new Date(timestamp * 1000); // Convert the timestamp to milliseconds
     const options = { day: '2-digit', month: 'short', year: 'numeric' }; // Specify the format
     return date.toLocaleDateString('en-GB', options); // Use 'en-GB' for English with MonthName
   }
 
+  function getUsers(){
+    axios.get('http://localhost:3000/api/users').then((response) => {
+      users.value = response.data;
+    })
+  }
 
+  // onMounted(() => {
+  // });
+
+  interface User {
+    user_id: string;         // UUID пользователя
+    username: string;        // Имя пользователя
+    email: string;           // Email пользователя
+    password: string;        // Хэш пароля
+    role: 'user' | 'admin';  // Роль пользователя
+    createdAt: string;       // Дата создания (ISO строка)
+    updatedAt: string;       // Дата последнего обновления (ISO строка)
+  }
 </script>
 
 <template>
@@ -47,20 +68,36 @@
               </svg>
             </div>
             <input type="search" id="search" class="block w-full p-4 ps-10 text-sm border border-gray-300 rounded-lg" placeholder="Search" required />
-            <button type="submit" class="text-white absolute end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Search</button>
+            <button
+                @click="getUsers()"
+                type="button" class="text-white absolute end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Search</button>
           </div>
         </form>
       </div>
-      <div class="flex gap-2 py-4 border-b-2 cursor-pointer" v-for="i in rooms" :key="i.id">
-        <div class="flex items-center">
-          <img src="/src/assets/img/icons/Google%20-%20Original.svg" alt="asdasd"/>
+      <div v-if="users.length === 0">
+        <div class="flex gap-2 py-4 border-b-2 cursor-pointer" v-for="i in rooms" :key="i.id">
+          <div class="flex items-center">
+            <img src="/src/assets/img/icons/Google%20-%20Original.svg" alt="asdasd"/>
+          </div>
+          <div>
+            <h1 class="font-bold">{{i.name}}</h1>
+            <p style="color:#848488;">{{i.lastMessage}}</p>
+          </div>
+          <div style="color: #AEAEB2;">
+            {{formatTimestamp(i.timestamp)}}
+          </div>
         </div>
-        <div>
-          <h1 class="font-bold">{{i.name}}</h1>
-          <p style="color:#848488;">{{i.lastMessage}}</p>
-        </div>
-        <div style="color: #AEAEB2;">
-          {{formatTimestamp(i.timestamp)}}
+      </div>
+      <div v-if="users.length > 0">
+        <div class="flex gap-2 py-4 border-b-2 cursor-pointer" v-for="user in users" :key="user.username">
+          <div class="flex items-center">
+            <img src="/src/assets/img/icons/Google%20-%20Original.svg" alt="asdasd"/>
+          </div>
+          <div>
+            <h1 class="font-bold">{{user.username}}</h1>
+          </div>
+          <div style="color: #AEAEB2;">
+          </div>
         </div>
       </div>
     </div>

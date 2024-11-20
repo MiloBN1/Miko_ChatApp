@@ -1,12 +1,12 @@
+const userService = require('../services/UserService');
+
 class UserController {
-    
-    list(req, res) {
-      res.send('Список пользователей');
+    // Получение списка пользователей
+    async list(req, res) {
+        const message = await userService.list(req)
+        res.json(message)
     }
-  
-    getUser(req, res) {
-      res.send(`Пользователь с ID: ${req.params.id}`);
-    }
-  }
-  
-  module.exports = new UserController();
+
+}
+
+module.exports = new UserController();
