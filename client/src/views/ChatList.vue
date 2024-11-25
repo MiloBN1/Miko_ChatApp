@@ -1,8 +1,9 @@
 <script setup lang="ts">
   import ChatBody from "../components/chat-tools/ChatBody.vue";
   import axios from "axios";
-  import { ref} from "vue";
+  import {onMounted, ref} from "vue";
   import {useRoomStore} from "../stores/room.store.ts";
+  import useCookie from "../services/use-cookie.ts";
   const roomStore = useRoomStore();
   let rooms = [
     {
@@ -28,6 +29,8 @@
     }
   ]
 
+  const userId = ref<string | null>(null);
+  const currentUser = ref<any>();
   let users = ref<User[] | []>([])
 
   function formatTimestamp(timestamp:number) {
@@ -42,6 +45,19 @@
     })
   }
 
+  function getChats(user_id: string) {
+    axios.get(`http://localhost:3000/api/user/${user_id}/chats`).then((response) => {console.log(response.data);})
+  }
+
+  function getMe(){
+    const token = useCookie.loadCookie('access_token')
+    axios.get('http://localhost:3000/api/user/me', {headers:{'Authorization': `Bearer ${token}`}}).then((response) => {
+      userId.value = response.data.user_id;
+      currentUser.value = response.data;
+      getChats(response.data.user_id);
+    })
+  }
+
   function selectRoom(room: Room) {
     roomStore.setCurrentRoom({
       roomId: room.roomId,
@@ -50,9 +66,23 @@
       timestamp: room.timestamp,
       img: room.img,
     });
+    createRoom(room.name, room.roomId)
   }
-  // onMounted(() => {
-  // });
+
+  function createRoom(room_name:string, receiver_id:string){
+    axios.post('http://localhost:3000/api/room/personal/new', {
+      user1: userId.value,
+      user2: receiver_id,
+      user1_name: currentUser.value.username,
+      user2_name: room_name,
+    }).then((res)=>{
+      if(res.data.room_id) roomStore.updateRoom({roomId: res.data.room_id})
+    })
+  }
+
+  onMounted(() => {
+    getMe()
+  });
   const commonRoom = {
     roomId: '',
     lastMessage: '',
@@ -114,7 +144,8 @@
         </div>
       </div>
       <div v-if="users.length > 0">
-        <div class="flex gap-2 py-4 border-b-2 cursor-pointer" v-for="user in users" :key="user.username" @click="selectRoom({...commonRoom, name:user.username})">
+        <div class="flex gap-2 py-4 border-b-2 cursor-pointer" v-for="user in users" :key="user.username"
+             @click="selectRoom({...commonRoom, name:user.username, roomId:user.user_id})">
           <div class="flex items-center">
             <img src="/src/assets/img/icons/Google%20-%20Original.svg" alt="asdasd"/>
           </div>

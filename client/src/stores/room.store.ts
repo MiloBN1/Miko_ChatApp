@@ -17,5 +17,12 @@ export const useRoomStore = defineStore('roomStore', {
         setCurrentRoom(room: Room) {
             this.currentRoom = room;
         },
+
+        updateRoom(updatedRoom: Partial<Room>) {
+            if (this.currentRoom) {
+                // Обновляем только те поля, которые переданы в updatedRoom
+                this.currentRoom = { ...this.currentRoom, ...updatedRoom };
+            }
+        },
     },
 });

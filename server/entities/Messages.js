@@ -29,7 +29,7 @@ const Messages = sequelize.define('Message', {
     allowNull: false,
   },
 }, {
-  tableName: 'messages', // Изменил имя таблицы на messages
+  tableName: 'messages',
   timestamps: true,
 });
 

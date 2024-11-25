@@ -7,12 +7,10 @@ import { useRoomStore } from '../../stores/room.store.ts'; // Подключае
 
 const message = ref<string>('');
 const textarea = ref<HTMLTextAreaElement | null>(null);
-const messages = ref<string[]>([]);
 const socket = ref<Socket | null>(null);
 const userId = ref<string | null>(null);
-
-
 const roomStore = useRoomStore();
+let chatHistory = ref<any[]>([]);
 // const receiverId = ref<string>('');
 
 // Resize textarea dynamically
@@ -29,13 +27,14 @@ function connectSocket() {
 
   // Handle incoming messages
   socket.value.on('private_message', ({ senderId, message }: { senderId: string, message: string }) => {
-    addMessage(`${senderId}: ${message}`);
+    addMessage(`${message}`, senderId);
   });
 }
 
 // Join chat (optional for user initialization)
 function joinChat() {
   if (userId.value) {
+    console.log(userId.value)
     socket.value?.emit('join', userId.value);
   }
 }
@@ -44,34 +43,40 @@ function joinChat() {
 function sendMessage() {
   if (userId.value && message.value) {
     socket.value?.emit('private_message', {
-      senderId: userId.value,
-      receiverId: 322,
+      roomId: roomStore.currentRoom?.roomId,
       message: message.value,
+      token: useCookie.loadCookie('access_token'),
     });
-    addMessage(`Вы: ${message.value}`);
+    // addMessage(message.value);
     message.value = '';
   }
 }
 
+function getChatHistory(room_id: string) {
+  axios.get(`http://localhost:3000/api/room/${room_id}/messages`).then((response) => {
+    console.log(response.data);
+    chatHistory.value = response.data
+  })
+}
+
 // Add message to the list
-function addMessage(msg: string) {
-  messages.value.push(msg);
+function addMessage(msg: string, sender_id:string) {
+  chatHistory.value.push({text: msg, sender_id: sender_id});
 }
 
 function getMe(){
   axios.get('http://localhost:3000/api/user/me', {headers:{'Authorization': `Bearer ${useCookie.loadCookie('access_token')}`}}).then((response) => {
-    console.log(response.data.user_id);
     userId.value = response.data.user_id;
-    console.log(userId.value)
+    connectSocket();
+    joinChat();
   })
-  connectSocket();
-  joinChat();
 }
 
 watch(() => roomStore.currentRoom, (newRoom) => {
   if (newRoom) {
     // Можно загрузить историю сообщений для новой комнаты
     console.log(`Switched to room: ${newRoom.name}`);
+    getChatHistory(newRoom.roomId)
   }
 });
 
@@ -96,17 +101,22 @@ onMounted(() => {
   <div class="px-5 relative w-2/3 flex flex-col h-[100vh] pt-16">
     <div class="flex bg-white p-5 absolute left-0 right-0 top-0">
       <img src="/src/assets/img/icons/Google%20-%20Original.svg" alt="asdasd" class="mr-2"/>
-      <span class="font-bold">Room1</span>
+      <span class="font-bold">{{ roomStore.currentRoom?.name || '' }}</span>
     </div>
     <!-- История сообщений -->
-    <div class="message-history flex-grow overflow-y-auto mt-3">
-      <div class="flex mt-3" v-for="(msg, index) in messages" :key="index" :class="index%2==0?'justify-end':'justify-start'">
+    <div class="message-history flex-grow overflow-y-auto mt-3" v-if="chatHistory.length > 0">
+      <div class="flex mt-3" v-for="(msg, index) in chatHistory" :key="index" :class="msg?.sender_id==userId?'justify-end':'justify-start'">
         <div class="message">
-          {{msg}}
+          {{msg.text}}
         </div>
       </div>
     </div>
-
+    <!-- История сообщений -->
+    <div class="message-history flex-grow overflow-y-auto mt-3" v-if="chatHistory.length == 0">
+      <div class="flex mt-3 justify-center items-center">
+        Сообщение пусто
+      </div>
+    </div>
     <!-- Поле ввода сообщения -->
     <div class="mt-5 flex items-end pb-2">
         <textarea v-model="message"
